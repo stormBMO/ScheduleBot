@@ -13,7 +13,10 @@ bot = telebot.TeleBot(token_bot)
 def get_text_messages(message):
      print(message.from_user.username + " отправил: " + message.text)
      if message.text == "/help":
-          bot.send_message(message.from_user.id, "Напиши /reg, чтобы зарегестрироваться") #надо бы продумать логику тут (ответа)
+          bot.send_message(message.from_user.id, "Напиши /reg, чтобы зарегистрироваться") #надо бы продумать логику тут (ответа)
+     elif message.text == "/reg" :
+          bot.send_message(message.from_user.id, "Завтра допишу что-нибудь, а пока что вот:")
+          bot.send_sticker(message.from_user.id, 'CAADAgADJAADO2AkFPvZAoRAR-UBFgQ')
      else:
           bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
 
