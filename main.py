@@ -11,9 +11,9 @@ bot = telebot.TeleBot(token_bot)
 def get_text_messages(message):
      print(message.text)
      if message.text == "Привет":
-          bot.send_message(message.from_user.id, "Привет, ты гей??")
+          bot.send_message(message.from_user.id, "Привет, хочешь добавить создать хз надо подумать") 
      elif message.text == "/help":
-          bot.send_message(message.from_user.id, "Напиши привет")
+          bot.send_message(message.from_user.id, "Напиши привет") #надо бы продумать логику тут (ответа)
      else:
           bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
 
