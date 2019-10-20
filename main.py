@@ -14,21 +14,24 @@ def get_text_messages(message):
      print(message.from_user.username + " отправил: " + message.text)
      if message.text == "/help":
           bot.send_message(message.from_user.id, "Этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться") #надо бы продумать логику тут (ответа)
-     elif message.text == "/reg" :
-          bot.send_message(message.from_user.id, "Завтра допишу что-нибудь, а пока что вот:")
+     elif message.text == "/reg":
+          bot.send_message(message.from_user.id, "Спасибо, что решил попробовать нашего бота <3")
           bot.send_sticker(message.from_user.id, 'CAADAgADJAADO2AkFPvZAoRAR-UBFgQ')
+          bot.send_message(message.from_user.id, "Как тебя зовут?")
           bot.register_next_step_handler(message, get_name)
      else:
           bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
 
 
-def get_name (message):
+def get_name(message):
+     global name 
      name = message.text
      bot.send_message(message.from_user.id, 'Какой у тебя факультет?')
      bot.register_next_step_handler(message, get_faculty)
 
 
 def get_faculty(message):
+     global faculty
      faculty = message.text
      bot.send_message(message.from_user.id, 'Отлично! Я тебя запомнил. Ты - ' + name + ', учишься на факультете ' + faculty)
 
