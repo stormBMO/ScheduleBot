@@ -24,13 +24,15 @@ def get_text_messages(message):
                bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
      else:
           if message.text == "/whoami":
-               bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете "  + faculty);
+               bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете "  + faculty)
           elif message.text == "/edit":
                markup = generate_markup()
                bot.send_message(message.from_user.id, "Что ты хочешь изменить.", reply_markup=markup)
-               bot.register_next_step_handler(message, edit_info)
+               bot.register_next_step_handler(message, edit_user)
+          elif message.text == '/info':
+               bot.send_message(message.from_user.id, "Над ботом работают @lexuxel & @stormbmo")
           else:
-               bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami');
+               bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami, /edit, /info')
 
 
 def register_user(message):
@@ -60,7 +62,7 @@ def edit_faculty(message):
      faculty = message.text
      bot.send_message(message.from_user.id, 'Супер, теперь ты учишься на факультет ' + faculty + ".")
 
-def edit_info(message):
+def edit_user(message):
      keyboard_hider = telebot.types.ReplyKeyboardRemove()
      if message.text == 'Имя':
           bot.send_message(message.from_user.id, 'Введи новое имя.',reply_markup=keyboard_hider)
@@ -70,7 +72,7 @@ def edit_info(message):
           bot.register_next_step_handler(message, edit_faculty)
      else:
           bot.send_message(message.from_user.id, "ИМЯ ИЛИ ФАКУЛЬТЕТ, УЕБОК!")
-          bot.register_next_step_handler(message, edit_info)
+          bot.register_next_step_handler(message, edit_user)
 
 def generate_markup():
     markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
