@@ -13,8 +13,10 @@ bot = telebot.TeleBot(token_bot)
 def get_text_messages(message):
      print(message.from_user.username + " отправил: " + message.text) 
      if name == '':
-          if message.text == "/help":
-               bot.send_message(message.from_user.id, "Этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться") #надо бы продумать логику тут (ответа)
+          if message.text == "/start":
+               bot.send_message(message.from_user.id, "Привет, этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться")
+          elif message.text == "/help":
+               bot.send_message(message.from_user.id, "Напиши /reg, чтобы зарегистрироваться") #надо бы продумать логику тут (ответа)
           elif message.text == "/reg":
                bot.send_message(message.from_user.id, "Спасибо, что решил попробовать нашего бота <3")
                bot.send_sticker(message.from_user.id, 'CAADAgADJAADO2AkFPvZAoRAR-UBFgQ')
@@ -24,7 +26,10 @@ def get_text_messages(message):
                bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
      else:
                if message.text == "/whoami":
-                    bot.send_message(message.from_user.id, 'Ты - ' + name + ', учишься на факультете ' + faculty);
+                    bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете"  + faculty);
+               if message.text == "/edit":
+                    bot.send_message(message.from_user.id, "Введи новое имя.")
+                    bot.register_next_step_handler(message, get_name)
                else:
                     bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami');
 
