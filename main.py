@@ -70,6 +70,7 @@ def edit_info(message):
           bot.register_next_step_handler(message, edit_faculty)
      else:
           bot.send_message(message.from_user.id, "ИМЯ ИЛИ ФАКУЛЬТЕТ, УЕБОК!")
+          bot.register_next_step_handler(message, edit_info)
 
 def generate_markup():
     markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
