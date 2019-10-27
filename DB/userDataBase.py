@@ -1,6 +1,10 @@
 import sqlite3
 
 db_name = "DB/users.db"
+us_db_name = "DB/users_schedule.db"
+
+#db_name = "users.db"
+#us_db_name = "users_schedule.db"
 
 
 def get_user_info(id):
@@ -28,6 +32,15 @@ def db_update_name(id, name):
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET name = ? WHERE id = ?", (name, id))
     conn.commit()
+    conn.close()
+
+
+def db_update_schedule(id, schedule):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET schedule = ? WHERE id = ?", (schedule, id))
+    conn.commit()
+    conn.close()
 
 
 def db_update_faculty(id, faculty):
@@ -35,6 +48,7 @@ def db_update_faculty(id, faculty):
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET faculty = ? WHERE id = ?", (faculty, id))
     conn.commit()
+    conn.close()
 
 
 def db_check_user(id):
@@ -47,3 +61,12 @@ def db_check_user(id):
         res = False
     conn.close()
     return res
+
+
+def create_schedule(id):
+    conn = sqlite3.connect(us_db_name)
+    cursor = conn.cursor()
+    name = "schedule_" + id
+    cursor.execute("CREATE TABLE " + name + " (number integer NOT NULL, weekday integer NOT NULL, time text, pair1 text, pair2 text)")
+    db_update_schedule(id, name)
+    conn.close()
