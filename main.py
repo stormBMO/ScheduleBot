@@ -1,17 +1,17 @@
 import telebot
 import requests
 import sqlite3
+import userDataBase
+
 #--------------------------------------------------------------------
 token_bot = '897488154:AAHM8Ghj65Xj6BP_fC8C6CWL-ZF7cs20FOA'
 #--------------------------------------------------------------------
-
 bot = telebot.TeleBot(token_bot)
 
 @bot.message_handler(content_types=['text'])
-
 def get_text_messages(message):
      print(message.from_user.username + " отправил: " + message.text)
-     if not db_check_user(message.from_user.id):
+     if not userDataBase.db_check_user(message.from_user.id):
           if message.text == "/start":
                bot.send_message(message.from_user.id, "Привет, этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться")
           elif message.text == "/help":
@@ -22,6 +22,9 @@ def get_text_messages(message):
                bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
      else:
           if message.text == "/whoami":
+               user_info = userDataBase.get_user_info(message.from_user.id)
+               name = user_info[0]
+               faculty = user_info[1];
                bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете "  + faculty);
           elif message.text == "/edit":
                markup = generate_markup()
@@ -37,29 +40,34 @@ def register_user(message):
      bot.send_message(message.from_user.id, "Как тебя зовут?")
      bot.register_next_step_handler(message, get_name)
 
+
 def get_name(message):
      name = message.text
-     add_user_to_db(message.from_user.id, name)
+     userDataBase.add_user_to_db(message.from_user.id, name)
      bot.send_message(message.from_user.id, 'Какой у тебя факультет?')
      bot.register_next_step_handler(message, get_faculty)
 
+
 def get_faculty(message):
      faculty = message.text
-     db_update_faculty(message.from_user.id, faculty)
-     user_info = get_user_info(message.from_user.id)
+     userDataBase.db_update_faculty(message.from_user.id, faculty)
+     user_info = userDataBase.get_user_info(message.from_user.id)
      name = user_info[0]
      faculty = user_info[1]
      bot.send_message(message.from_user.id, 'Отлично! Я тебя запомнил. Ты - ' + name + ', учишься на факультете ' + faculty)
 
+
 def edit_name(message):
      name = message.text
-     db_update_name(message.from_user.id, name)
+     userDataBase.db_update_name(message.from_user.id, name)
      bot.send_message(message.from_user.id, 'Отлично, теперь ты ' + name + ".")
+
 
 def edit_faculty(message):
      faculty = message.text
-     db_update_faculty(message.from_user.id, faculty)
+     userDataBase.db_update_faculty(message.from_user.id, faculty)
      bot.send_message(message.from_user.id, 'Супер, теперь ты учишься на факультет ' + faculty + ".")
+
 
 def edit_info(message):
      keyboard_hider = telebot.types.ReplyKeyboardRemove()
@@ -70,54 +78,15 @@ def edit_info(message):
           bot.send_message(message.from_user.id, 'Введи новый факультет.', reply_markup=keyboard_hider)
           bot.register_next_step_handler(message, edit_faculty)
      else:
-          bot.send_message(message.from_user.id, "ИМЯ ИЛИ ФАКУЛЬТЕТ, УЕБОК!")
+          bot.send_message(message.from_user.id, "ИМЯ ИЛИ ФАКУЛЬТЕТ, ДУРИК")
+
 
 def generate_markup():
-    markup = telebot.types.ReplyKeyboardMarkup()
-    button1 = telebot.types.InlineKeyboardButton('Имя')
-    button2 = telebot.types.InlineKeyboardButton('Факультет')
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button1 = telebot.types.KeyboardButton('Имя')
+    button2 = telebot.types.KeyboardButton('Факультет')
     markup.row(button1, button2)
     return markup
 
-def get_user_info(id):
-     conn = sqlite3.connect("users.db")
-     cursor = conn.cursor()
-     cursor.execute("SELECT * FROM users WHERE id = ?", (id,))
-     user_info = cursor.fetchone()
-     conn.close()
-     return (user_info[1], user_info[2])
-
-def add_user_to_db(id, name):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT rowid FROM users WHERE id = ?", (id,))
-    data = cursor.fetchall()
-    if len(data) == 0:
-        cursor.execute("INSERT INTO users VALUES (?, ?, '', '', '')", (id, name))
-        conn.commit()
-    conn.close()
-
-def db_update_name(id, name):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET name = ? WHERE id = ?", (name, id))
-    conn.commit()
-
-def db_update_faculty(id, faculty):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET faculty = ? WHERE id = ?", (faculty, id))
-    conn.commit()
-
-def db_check_user(id):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT rowid FROM users WHERE id = ?", (id,))
-    data = cursor.fetchall()
-    res = True
-    if len(data) == 0:
-        res = False
-    conn.close()
-    return res
 
 bot.polling(none_stop=True, interval=0)
