@@ -142,12 +142,13 @@ def set_classes(message):
 
 def set_class_name(message):
     userDataBase.schedule_add_pair(message.from_user.id, message.text)
-    bot.register_next_step_handler(message, set_day)
+    bot.send_message(message.from_user.id, "Предмет добавлен.")
+    set_day(message)
 
 
 def repeat_action(message):
     bot.send_message(message.from_user.id, "Выбирай следующий день. Если закончил добавление - пиши /stop")
-    bot.register_next_step_handler(message, set_day)
+    set_day(message)
 
 
 # -----------------------------keyboards----------------------------------------
@@ -179,7 +180,7 @@ def generate_week_choose_markup():
     week_2_bt = telebot.types.KeyboardButton('Знаменатель')
     week_all_bt = telebot.types.KeyboardButton('Всегда одинаковые пары')
     back_bt = telebot.types.KeyboardButton("Назад к выбору пары")
-    markup.row(week_1_bt, week_2_bt, week_all_bt)
+    markup.row(week_all_bt, week_1_bt, week_2_bt)
     markup.row(back_bt)
     return markup
 
