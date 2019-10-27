@@ -1,7 +1,7 @@
 import telebot
 import requests
 import sqlite3
-import userDataBase
+from DB import userDataBase
 
 #--------------------------------------------------------------------
 token_bot = '897488154:AAHM8Ghj65Xj6BP_fC8C6CWL-ZF7cs20FOA'

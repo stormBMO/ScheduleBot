@@ -1,8 +1,10 @@
 import sqlite3
 
+db_name = "DB/users.db"
+
 
 def get_user_info(id):
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE id = ?", (id,))
     user_info = cursor.fetchone()
@@ -11,7 +13,7 @@ def get_user_info(id):
 
 
 def add_user_to_db(id, name):
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("SELECT rowid FROM users WHERE id = ?", (id,))
     data = cursor.fetchall()
@@ -22,21 +24,21 @@ def add_user_to_db(id, name):
 
 
 def db_update_name(id, name):
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET name = ? WHERE id = ?", (name, id))
     conn.commit()
 
 
 def db_update_faculty(id, faculty):
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET faculty = ? WHERE id = ?", (faculty, id))
     conn.commit()
 
 
 def db_check_user(id):
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("SELECT rowid FROM users WHERE id = ?", (id,))
     data = cursor.fetchall()
