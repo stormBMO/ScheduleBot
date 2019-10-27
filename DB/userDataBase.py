@@ -67,6 +67,57 @@ def create_schedule(id):
     conn = sqlite3.connect(us_db_name)
     cursor = conn.cursor()
     name = "schedule_" + str(id)
-    cursor.execute("CREATE TABLE IF NOT EXISTS " + name + " (number integer NOT NULL, weekday integer NOT NULL, time text, pair1 text, pair2 text)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS " + name
+                   + " (weekday integer NOT NULL, number integer NOT NULL, time text, pair1 text, pair2 text, flag integer NOT NULL)")
     db_update_schedule(id, name)
+    cursor.execute("SELECT rowid FROM " + name)
+    data = cursor.fetchall()
+    if len(data) == 0:
+        for i in range(6):
+            for j in range(8):
+                cursor.execute("INSERT INTO " + name + " VALUES (?, ?, '', '', '', 0)", (i + 1, j + 1))
+                conn.commit()
+    conn.close()
+
+
+def add_weekday_flag(id, weekday):
+    conn = sqlite3.connect(us_db_name)
+    cursor = conn.cursor()
+    name = "schedule_" + str(id)
+    cursor.execute("UPDATE " + name + " SET flag = 0 WHERE flag = -1")
+    cursor.execute("UPDATE " + name + " SET flag = -1 WHERE weekday = ?", (weekday,))
+    conn.commit()
+    conn.close()
+
+
+def add_number_flag(id, number):
+    conn = sqlite3.connect(us_db_name)
+    cursor = conn.cursor()
+    name = "schedule_" + str(id)
+    cursor.execute("UPDATE " + name + " SET flag = 0 WHERE number != ? AND flag = -1", (number,))
+    conn.commit()
+    conn.close()
+
+
+def add_pair_flag(id, pair_num):
+    conn = sqlite3.connect(us_db_name)
+    cursor = conn.cursor()
+    name = "schedule_" + str(id)
+    cursor.execute("UPDATE " + name + " SET pair1 = '' WHERE pair1 = 'null_pair'")
+    cursor.execute("UPDATE " + name + " SET pair2 = '' WHERE pair2 = 'null_pair'")
+    if pair_num != 2:
+        cursor.execute("UPDATE " + name + " SET pair1 = 'null_pair' WHERE flag = -1")
+    if pair_num != 1:
+        cursor.execute("UPDATE " + name + " SET pair2 = 'null_pair' WHERE flag = -1")
+    conn.commit()
+    conn.close()
+
+
+def schedule_add_pair(id, pair):
+    conn = sqlite3.connect(us_db_name)
+    cursor = conn.cursor()
+    name = "schedule_" + str(id)
+    cursor.execute("UPDATE " + name + " SET pair1 = ? WHERE pair1 = 'null_pair'", (pair,))
+    cursor.execute("UPDATE " + name + " SET pair2 = ? WHERE pair2 = 'null_pair'", (pair,))
+    conn.commit()
     conn.close()

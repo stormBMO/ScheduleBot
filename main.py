@@ -1,8 +1,10 @@
+# coding=utf-8
 import telebot
 import requests
 import sqlite3
+import transformations
 from DB import userDataBase
-
+import transformations
 # ----------------------------------------------------------------------------
 token_bot = '897488154:AAHM8Ghj65Xj6BP_fC8C6CWL-ZF7cs20FOA'
 # ----------------------------------------------------------------------------
@@ -14,11 +16,9 @@ def get_text_messages(message):
     print(message.from_user.username + " отправил: " + message.text)
     if not userDataBase.db_check_user(message.from_user.id):
         if message.text == "/start":
-            bot.send_message(message.from_user.id,
-                             "Привет, этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться")
+            bot.send_message(message.from_user.id, "Привет, этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться")
         elif message.text == "/help":
-            bot.send_message(message.from_user.id,
-                             "Напиши /reg, чтобы зарегистрироваться")  # надо бы продумать логику тут (ответа)
+            bot.send_message(message.from_user.id, "Напиши /reg, чтобы зарегистрироваться")  # надо бы продумать логику тут (ответа)
         elif message.text == "/reg":
             register_user(message)
         else:
@@ -36,10 +36,9 @@ def get_text_messages(message):
         elif message.text == "/schedule_reg":
             bot.send_message(message.from_user.id, "Отлично, приступим")
             # Добаление в бд таблицы пользователя
-            userDataBase.create_schedule(message.from_user.id) 
+            userDataBase.create_schedule(message.from_user.id)
             markup = generate_day_choose_markup()
-            bot.send_message(message.from_user.id,
-                     "Выбирай день недели. Если ты закончил - пиши /stop", reply_markup=markup)
+            bot.send_message(message.from_user.id, "Выбирай день недели. Если ты закончил - пиши /stop", reply_markup=markup)
             bot.register_next_step_handler(message, set_class_num)
         else:
             bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami');
@@ -52,9 +51,6 @@ def register_user(message):
     bot.send_sticker(message.from_user.id, 'CAADAgADJAADO2AkFPvZAoRAR-UBFgQ')
     bot.send_message(message.from_user.id, "Как тебя зовут?")
     bot.register_next_step_handler(message, get_name)
-
-
-
 
 
 # -------------------------------get functions-----------------------------------
@@ -72,10 +68,8 @@ def get_faculty(message):
     user_info = userDataBase.get_user_info(message.from_user.id)
     name = user_info[0]
     faculty = user_info[1]
-    bot.send_message(message.from_user.id,
-                     'Отлично! Я тебя запомнил. Ты - ' + name + ', учишься на факультете ' + faculty)
-    bot.send_message(message.from_user.id, 
-                    'Теперь предлагаю тебе заполнить расписание твоих занятий. Если надумаешь - пиши /schedule_reg')
+    bot.send_message(message.from_user.id, 'Отлично! Я тебя запомнил. Ты - ' + name + ', учишься на факультете ' + faculty)
+    bot.send_message(message.from_user.id, 'Теперь предлагаю тебе заполнить расписание твоих занятий. Если надумаешь - пиши /schedule_reg')
 
 
 # ----------------------------------edit functions------------------------------
@@ -104,11 +98,10 @@ def edit_info(message):
         bot.send_message(message.from_user.id, "Я вас не понимаю. Скажите, имя или факультет.")
 
 
-# ----------------------------scedule functions---------------------------------
+# ----------------------------schedule functions---------------------------------
 def set_day(message):
     markup = generate_day_choose_markup()
-    bot.send_message(message.from_user.id,
-                     "Выбирай день недели. Если ты закончил - пиши /stop", reply_markup=markup)
+    bot.send_message(message.from_user.id, "Выбирай день недели. Если ты закончил - пиши /stop", reply_markup=markup)
     bot.register_next_step_handler(message, set_class_num)
 
 
@@ -116,39 +109,40 @@ def set_class_num(message):
     if message.text == '/stop':
         user_info = userDataBase.get_user_info(message.from_user.id)
         name = user_info[0]
-        bot.send_message(message.from_user.id,
-                         'Замечательно, ' + 
-                         name + 
-                         '! Теперь ты можешь смотерть свое расписание в телеграмме, как крутой чел ыыыы. Рекламь его')
+        bot.send_message(message.from_user.id, 'Замечательно, ' + name + '! Теперь ты можешь смотерть свое расписание в телеграмме, как крутой чел ыыыы. Рекламь его')
     else:
-        #Здесь ставить день смотреть, какой день выбран
+        # Здесь ставить день смотреть, какой день выбран
+        userDataBase.add_weekday_flag(message.from_user.id, transformations.weekday_to_int(message.text))
         markup = generate_classes_choose_markup()
-        bot.send_message(message.from_user.id,
-                     "Выбери какую пару хочешь поставить",
-                     reply_markup=markup)
+        bot.send_message(message.from_user.id, "Выбери какую пару хочешь поставить", reply_markup=markup)
         bot.register_next_step_handler(message, set_week)
-    
+
 
 def set_week(message):
     # Здесь message.text = номеру пары, на которую записывать
+    userDataBase.add_number_flag(message.from_user.id, int(message.text))
     if message.text == 'Назад к выбору дня недели':
         set_day(message)
-    else:    
+    else:
         markup = generate_week_choose_markup()
-        bot.send_message(message.from_user.id,
-                         "Выбери неделю, в которую эта пара",
-                         reply_markup=markup)
+        bot.send_message(message.from_user.id, "Выбери неделю, в которую эта пара", reply_markup=markup)
         bot.register_next_step_handler(message, set_classes)
 
 
 def set_classes(message):
-        # Здесь message.text = либо числитель либо знаме(и)натель либо всегда
+    # Здесь message.text = либо числитель либо знаме(и)натель либо всегда
     if message.text == 'Назад к выбору пары':
         set_class_num(message)
-    else:  
+    else:
+        userDataBase.add_pair_flag(message.from_user.id, transformations.pair_to_int(message.text))
         keyboard_hider = telebot.types.ReplyKeyboardRemove()
         bot.send_message(message.from_user.id, "Теперь напиши мне пары, которые у тебя будут", reply_markup=keyboard_hider)
-        bot.register_next_step_handler(message, set_day)
+        bot.register_next_step_handler(message, set_class_name)
+
+
+def set_class_name(message):
+    userDataBase.schedule_add_pair(message.from_user.id, message.text)
+    bot.register_next_step_handler(message, set_day)
 
 
 def repeat_action(message):
@@ -183,25 +177,21 @@ def generate_week_choose_markup():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     week_1_bt = telebot.types.KeyboardButton('Числитель')
     week_2_bt = telebot.types.KeyboardButton('Знаменатель')
-    week_all_bt = telebot.types.KeyboardButton('Всегда')
+    week_all_bt = telebot.types.KeyboardButton('Всегда одинаковые пары')
     back_bt = telebot.types.KeyboardButton("Назад к выбору пары")
     markup.row(week_1_bt, week_2_bt, week_all_bt)
     markup.row(back_bt)
     return markup
 
+
 def generate_classes_choose_markup():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    bt_1 = telebot.types.KeyboardButton("1")
-    bt_2 = telebot.types.KeyboardButton("2")
-    bt_3 = telebot.types.KeyboardButton("3")
-    bt_4 = telebot.types.KeyboardButton("4")
-    bt_5 = telebot.types.KeyboardButton("5")
-    bt_6 = telebot.types.KeyboardButton("6")
-    bt_7 = telebot.types.KeyboardButton("7")
-    bt_8 = telebot.types.KeyboardButton("8")
+    buttons = (telebot.types.KeyboardButton("1"), telebot.types.KeyboardButton("2"), telebot.types.KeyboardButton("3"),
+               telebot.types.KeyboardButton("4"), telebot.types.KeyboardButton("5"), telebot.types.KeyboardButton("6"),
+               telebot.types.KeyboardButton("7"), telebot.types.KeyboardButton("8"))
     back_bt = telebot.types.KeyboardButton("Назад к выбору дня недели")
-    markup.row(bt_1, bt_2, bt_3, bt_4)
-    markup.row(bt_5, bt_6, bt_7, bt_8)
+    markup.row(buttons[0], buttons[1], buttons[2], buttons[3])
+    markup.row(buttons[4], buttons[5], buttons[6], buttons[7])
     markup.row(back_bt)
     return markup
 
