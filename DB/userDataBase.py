@@ -121,3 +121,11 @@ def schedule_add_pair(id, pair):
     cursor.execute("UPDATE " + name + " SET pair2 = ? WHERE pair2 = 'null_pair'", (pair,))
     conn.commit()
     conn.close()
+
+def db_update_time(id, time):
+    conn = sqlite3.connect(us_db_name)
+    cursor = conn.cursor()
+    name = "schedule_" + str(id)
+    cursor.execute("UPDATE " + name + " SET time = ? WHERE id = ?", (time, id))
+    conn.commit()
+    conn.close()

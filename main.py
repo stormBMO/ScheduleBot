@@ -13,7 +13,7 @@ bot = telebot.TeleBot(token_bot)
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    print(message.from_user.username + " отправил: " + message.text)
+    #print(message.from_user.username + " отправил: " + message.text)
     if not userDataBase.db_check_user(message.from_user.id):
         if message.text == "/start":
             bot.send_message(message.from_user.id, "Привет, этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться")
