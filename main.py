@@ -13,7 +13,7 @@ bot = telebot.TeleBot(token_bot)
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    #print(message.from_user.username + " отправил: " + message.text)
+    print(message.from_user.username + " отправил: " + message.text)
     if not userDataBase.db_check_user(message.from_user.id):
         if message.text == "/start":
             bot.send_message(message.from_user.id, "Привет, этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться")
@@ -109,7 +109,7 @@ def set_class_num(message):
     if message.text == '/stop':
         user_info = userDataBase.get_user_info(message.from_user.id)
         name = user_info[0]
-        bot.send_message(message.from_user.id, 'Замечательно, ' + name + '! Теперь ты можешь смотерть свое расписание в телеграмме, как крутой чел ыыыы. Рекламь его')
+        bot.send_message(message.from_user.id, 'Замечательно, ' + name + '! Теперь ты можешь смотерть свое расписание в телеграмe. Расскажи друзьям про бота, чтобы мы могли развиваться')
     else:
         # Здесь ставить день смотреть, какой день выбран
         userDataBase.add_weekday_flag(message.from_user.id, transformations.weekday_to_int(message.text))

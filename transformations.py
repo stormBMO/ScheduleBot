@@ -1,3 +1,4 @@
+# coding=utf-8
 def weekday_to_int(weekday):
     if weekday == "Понедельник":
         return 1
