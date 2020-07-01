@@ -3,6 +3,7 @@ import telebot
 import requests
 import sqlite3
 import transformations
+from datetime import datetime
 from DB import userDataBase
 import transformations
 # ----------------------------------------------------------------------------
@@ -40,6 +41,9 @@ def get_text_messages(message):
             markup = generate_day_choose_markup()
             bot.send_message(message.from_user.id, "Выбирай день недели. Если ты закончил - пиши /stop", reply_markup=markup)
             bot.register_next_step_handler(message, set_class_num)
+        elif message.text == "/get_all_schedule":
+            bot.send_message(message.from_user.id, "Вот твое текущее расписание:")
+            bot.register_next_step_handler(message, get_all_schedule)
         else:
             bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami');
 
@@ -70,6 +74,16 @@ def get_faculty(message):
     faculty = user_info[1]
     bot.send_message(message.from_user.id, 'Отлично! Я тебя запомнил. Ты - ' + name + ', учишься на факультете ' + faculty)
     bot.send_message(message.from_user.id, 'Теперь предлагаю тебе заполнить расписание твоих занятий. Если надумаешь - пиши /schedule_reg')
+
+
+#       TODO: Add func that returns all values (classes) from users DB
+def get_all_schedule(message):
+    user = message.from_user.id
+    userDB = userDataBase.db_get_all_schedule(user)
+
+#       TODO: Add func that returns value from specific week day
+def get_todays_schedule():
+    user = 1
 
 
 # ----------------------------------edit functions------------------------------
@@ -151,6 +165,10 @@ def repeat_action(message):
     set_day(message)
 
 
+def reminder_checkpoint(message):
+    bot.send_message(message.from_user.id, "")
+
+
 # -----------------------------keyboards----------------------------------------
 
 def generate_register_markup():
@@ -198,3 +216,5 @@ def generate_classes_choose_markup():
 
 
 bot.polling(none_stop=True, interval=0)
+if(datetime.today().strftime('%A') == ""):
+    print()

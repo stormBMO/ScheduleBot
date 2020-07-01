@@ -34,6 +34,14 @@ def db_update_name(id, name):
     conn.commit()
     conn.close()
 
+def db_get_all_schedule(id):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (id,))
+    user_info = cursor.fetchone()
+    conn.close()
+    return user_info
+
 
 def db_update_schedule(id, schedule):
     conn = sqlite3.connect(db_name)
