@@ -41,7 +41,7 @@ def db_get_all_schedule(id):
     user_schedule_name = cursor.fetchone()[0]
     conn = sqlite3.connect(us_db_name)
     cursor = conn.cursor()
-    cursor.execute("SELECT pair1, pair2 FROM " + user_schedule_name + " WHERE pair1 IS NOT NULL")
+    cursor.execute("SELECT * FROM " + user_schedule_name + " WHERE pair1 IS NOT NULL")
     user_info = cursor.fetchall()
     conn.close()
     return user_info

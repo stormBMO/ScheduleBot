@@ -90,7 +90,12 @@ def get_all_schedule(message):
     userDB = userDataBase.db_get_all_schedule(user)
     print(userDB)
     for pair in range(len(userDB)):
-        bot.send_message(message.from_user.id, userDB[pair][0] + " " + userDB[pair][1])
+        if userDB[pair][3] != '':
+            bot.send_message(message.from_user.id, transformations.int_to_weekday(userDB[pair][0]) + ": " + str(userDB[pair][1]) +
+                             " полупара - " + userDB[pair][3])
+        if userDB[pair][4] != '':
+            bot.send_message(message.from_user.id, transformations.int_to_weekday(userDB[pair][0]) + ": " + str(userDB[pair][1]) +
+                             " полупара - " + userDB[pair][4])
 
 #       TODO: Add func that returns value from specific week day
 def get_todays_schedule():
