@@ -8,8 +8,8 @@ from DB import userDataBase
 import transformations
 # ----------------------------------------------------------------------------
 token_bot = '897488154:AAHM8Ghj65Xj6BP_fC8C6CWL-ZF7cs20FOA'
-# ----------------------------------------------------------------------------
 bot = telebot.TeleBot(token_bot)
+# ----------------------------------------------------------------------------
 
 
 @bot.message_handler(content_types=['text'])
@@ -30,22 +30,22 @@ def get_text_messages(message):
             name = user_info[0]
             faculty = user_info[1];
             bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете " + faculty);
-        elif message.text == "/edit":
+        elif message.text == "/edit" or message.text == "Изменить имя и факультет":
             markup = generate_register_markup()
             bot.send_message(message.from_user.id, "Что ты хочешь изменить.", reply_markup=markup)
             bot.register_next_step_handler(message, edit_info)
-        elif message.text == "/schedule_reg":
+        elif message.text == "/schedule_reg" or message.text == "Зарегестрировать или изменить расписание":
             bot.send_message(message.from_user.id, "Отлично, приступим")
             # Добаление в бд таблицы пользователя
             userDataBase.create_schedule(message.from_user.id)
             markup = generate_day_choose_markup()
             bot.send_message(message.from_user.id, "Выбирай день недели. Если ты закончил - пиши /stop", reply_markup=markup)
             bot.register_next_step_handler(message, set_class_num)
-        elif message.text == "/get_all_schedule":
+        elif message.text == "/get_all_schedule" or message.text == "Получить полное расписание":
             bot.send_message(message.from_user.id, "Вот твое текущее расписание:")
             bot.register_next_step_handler(message, get_all_schedule)
         else:
-            bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami');
+            bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami, /edit, /schedule_reg, /get_all_schedule');
 
 
 # ------------------------registration`s functions-------------------------------
@@ -123,12 +123,15 @@ def set_class_num(message):
     if message.text == '/stop':
         user_info = userDataBase.get_user_info(message.from_user.id)
         name = user_info[0]
-        bot.send_message(message.from_user.id, 'Замечательно, ' + name + '! Теперь ты можешь смотерть свое расписание в телеграмe. Расскажи друзьям про бота, чтобы мы могли развиваться')
+        markup = generate_main_markup()
+        bot.send_message(message.from_user.id, 'Замечательно, ' + name + '! Теперь ты можешь '
+                                                                         'смотерть свое расписание в телеграмe. Расскажи друзьям про '
+                                                                         'бота, чтобы мы могли развиваться', reply_markup=markup)
     else:
         # Здесь ставить день смотреть, какой день выбран
         userDataBase.add_weekday_flag(message.from_user.id, transformations.weekday_to_int(message.text))
         markup = generate_classes_choose_markup()
-        bot.send_message(message.from_user.id, "Выбери какую пару хочешь поставить", reply_markup=markup)
+        bot.send_message(message.from_user.id, "Выбери какую пару хочешь поставить", reply_markup = markup)
         bot.register_next_step_handler(message, set_week)
 
 
@@ -212,6 +215,17 @@ def generate_classes_choose_markup():
     markup.row(buttons[0], buttons[1], buttons[2], buttons[3])
     markup.row(buttons[4], buttons[5], buttons[6], buttons[7])
     markup.row(back_bt)
+    return markup
+
+
+def generate_main_markup():
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    edit_btn = telebot.types.KeyboardButton("Изменить имя и факультет")
+    schedule_reg_btn = telebot.types.KeyboardButton("Зарегестрировать или изменить расписание")
+    get_all_schedule_btn = telebot.types.KeyboardButton("Получить полное расписание")
+    markup.row(edit_btn)
+    markup.row(schedule_reg_btn)
+    markup.row(get_all_schedule_btn)
     return markup
 
 
