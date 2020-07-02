@@ -29,6 +29,7 @@ def get_text_messages(message):
         else:
             bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.", reply_markup=markup)
     else:
+        flag_for_schedule = 0
         if message.text == "/whoami":
             user_info = userDataBase.get_user_info(message.from_user.id)
             name = user_info[0]
@@ -39,8 +40,9 @@ def get_text_messages(message):
             markup = generate_register_markup()
             bot.send_message(message.from_user.id, "Что ты хочешь изменить.", reply_markup=markup)
             bot.register_next_step_handler(message, edit_info)
-        elif message.text == "/schedule_reg" or message.text == "Зарегистрировать расписание":
+        elif message.text == "/schedule_reg" or message.text == "Зарегистрировать или изменить расписание":
             bot.send_message(message.from_user.id, "Отлично, приступим")
+            flag_for_schedule = 1
             # Добаление в бд таблицы пользователя
             userDataBase.create_schedule(message.from_user.id)
             markup = generate_day_choose_markup()
@@ -48,8 +50,11 @@ def get_text_messages(message):
             bot.register_next_step_handler(message, set_class_num)
         elif message.text == "/get_all_schedule" or message.text == "Получить полное расписание":
             markup = generate_main_markup()
-            bot.send_message(message.from_user.id, "Вот твое текущее расписание:", reply_markup=markup)
-            get_all_schedule(message)
+            if flag_for_schedule == 0:
+                bot.send_message(message.from_user.id, "Сначала заполни свое расписание.", reply_markup=markup)
+            else:
+                bot.send_message(message.from_user.id, "Вот твое текущее расписание:", reply_markup=markup)
+                get_all_schedule(message)
         else:
             markup = generate_main_markup()
             bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команду '
@@ -59,9 +64,10 @@ def get_text_messages(message):
 # ------------------------registration`s functions-------------------------------
 
 def register_user(message):
+    keyboard_hider = telebot.types.ReplyKeyboardRemove()
     bot.send_message(message.from_user.id, "Спасибо, что решил попробовать нашего бота <3")
     bot.send_sticker(message.from_user.id, 'CAADAgADJAADO2AkFPvZAoRAR-UBFgQ')
-    bot.send_message(message.from_user.id, "Как тебя зовут?")
+    bot.send_message(message.from_user.id, "Как тебя зовут?", reply_markup=keyboard_hider)
     bot.register_next_step_handler(message, get_name)
 
 
@@ -75,27 +81,33 @@ def get_name(message):
 
 
 def get_faculty(message):
+    markup = generate_main_markup()
     faculty = message.text
     userDataBase.db_update_faculty(message.from_user.id, faculty)
     user_info = userDataBase.get_user_info(message.from_user.id)
     name = user_info[0]
     faculty = user_info[1]
     bot.send_message(message.from_user.id, 'Отлично! Я тебя запомнил. Ты - ' + name + ', учишься на факультете ' + faculty)
-    bot.send_message(message.from_user.id, 'Теперь предлагаю тебе заполнить расписание твоих занятий. Если надумаешь - пиши /schedule_reg')
+    bot.send_message(message.from_user.id, 'Теперь предлагаю тебе заполнить расписание твоих занятий. Если надумаешь - пиши /schedule_reg '
+                                           'или нажми на кнопку ниже', reply_markup=markup)
 
 
-#       TODO: think about normal output
 def get_all_schedule(message):
     user = message.from_user.id
+    markup = generate_main_markup()
     userDB = userDataBase.db_get_all_schedule(user)
     print(userDB)
-    for pair in range(len(userDB)):
-        if userDB[pair][3] != '':
-            bot.send_message(message.from_user.id, transformations.int_to_weekday(userDB[pair][0]) + ": " + str(userDB[pair][1]) +
-                             " полупара - " + userDB[pair][3])
-        if userDB[pair][4] != '':
-            bot.send_message(message.from_user.id, transformations.int_to_weekday(userDB[pair][0]) + ": " + str(userDB[pair][1]) +
-                             " полупара - " + userDB[pair][4])
+    if len(userDB) > 0:
+        for pair in range(len(userDB)):
+            if userDB[pair][3] != '':
+                bot.send_message(message.from_user.id, transformations.int_to_weekday(userDB[pair][0]) + ": " + str(userDB[pair][1]) +
+                                 " полупара - " + userDB[pair][3])
+            if userDB[pair][4] != '':
+                bot.send_message(message.from_user.id, transformations.int_to_weekday(userDB[pair][0]) + ": " + str(userDB[pair][1]) +
+                                 " полупара - " + userDB[pair][4])
+    else:
+        bot.send_message(message.from_user.id, "Сначала заполни свое расписание", markup_reply=markup)
+    bot.send_message(message.from_user.id, "Можешь изменить или дополнить его, нажав на кнопку ниже", markup_reply=markup)
 
 #       TODO: Add func that returns value from specific week day
 def get_todays_schedule():
@@ -244,7 +256,7 @@ def generate_classes_choose_markup():
 def generate_main_markup():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     edit_btn = telebot.types.KeyboardButton("Изменить имя или факультет")
-    schedule_reg_btn = telebot.types.KeyboardButton("Зарегистрировать расписание")
+    schedule_reg_btn = telebot.types.KeyboardButton("Зарегистрировать или изменить расписание")
     get_all_schedule_btn = telebot.types.KeyboardButton("Получить полное расписание")
     markup.row(edit_btn)
     markup.row(schedule_reg_btn)
