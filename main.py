@@ -9,6 +9,7 @@ import transformations
 # ----------------------------------------------------------------------------
 token_bot = '897488154:AAHM8Ghj65Xj6BP_fC8C6CWL-ZF7cs20FOA'
 bot = telebot.TeleBot(token_bot)
+flag_for_schedule = 0
 # ----------------------------------------------------------------------------
 
 
@@ -29,7 +30,6 @@ def get_text_messages(message):
         else:
             bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.", reply_markup=markup)
     else:
-        flag_for_schedule = 0
         if message.text == "/whoami":
             user_info = userDataBase.get_user_info(message.from_user.id)
             name = user_info[0]
@@ -42,6 +42,7 @@ def get_text_messages(message):
             bot.register_next_step_handler(message, edit_info)
         elif message.text == "/schedule_reg" or message.text == "Зарегистрировать или изменить расписание":
             bot.send_message(message.from_user.id, "Отлично, приступим")
+            global flag_for_schedule
             flag_for_schedule = 1
             # Добаление в бд таблицы пользователя
             userDataBase.create_schedule(message.from_user.id)
