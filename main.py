@@ -33,12 +33,13 @@ def get_text_messages(message):
             user_info = userDataBase.get_user_info(message.from_user.id)
             name = user_info[0]
             faculty = user_info[1]
-            bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете " + faculty);
+            markup = generate_start_markup()
+            bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете " + faculty, reply_markup=markup);
         elif message.text == "/edit" or message.text == "Изменить имя или факультет":
             markup = generate_register_markup()
             bot.send_message(message.from_user.id, "Что ты хочешь изменить.", reply_markup=markup)
             bot.register_next_step_handler(message, edit_info)
-        elif message.text == "/schedule_reg" or message.text == "Зарегестрировать расписание":
+        elif message.text == "/schedule_reg" or message.text == "Зарегистрировать расписание":
             bot.send_message(message.from_user.id, "Отлично, приступим")
             # Добаление в бд таблицы пользователя
             userDataBase.create_schedule(message.from_user.id)
@@ -87,8 +88,9 @@ def get_faculty(message):
 def get_all_schedule(message):
     user = message.from_user.id
     userDB = userDataBase.db_get_all_schedule(user)
+    print(userDB)
     for pair in range(len(userDB)):
-        bot.send_message(message.from_user.id, userDB[pair][3])
+        bot.send_message(message.from_user.id, userDB[pair][0] + " " + userDB[pair][1])
 
 #       TODO: Add func that returns value from specific week day
 def get_todays_schedule():
@@ -237,7 +239,7 @@ def generate_classes_choose_markup():
 def generate_main_markup():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     edit_btn = telebot.types.KeyboardButton("Изменить имя или факультет")
-    schedule_reg_btn = telebot.types.KeyboardButton("Зарегестрировать расписание")
+    schedule_reg_btn = telebot.types.KeyboardButton("Зарегистрировать расписание")
     get_all_schedule_btn = telebot.types.KeyboardButton("Получить полное расписание")
     markup.row(edit_btn)
     markup.row(schedule_reg_btn)

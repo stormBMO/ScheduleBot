@@ -20,3 +20,15 @@ def pair_to_int(pair):
         return 2
     if pair == "Всегда одинаковые пары":
         return 3
+
+def int_to_weekday(int):
+    weekday = {
+        0: "Понедельник",
+        1: "Вторник",
+        2: "Среда",
+        3: "Четверг",
+        4: "Пятница",
+        5: "Суббота",
+        6: "Воскресенье"
+    }
+    return weekday[int]
