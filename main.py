@@ -244,11 +244,18 @@ def generate_main_markup():
     markup.row(get_all_schedule_btn)
     return markup
 
+# --------------------------------handlers-----------------------------------------
+
 @bot.message_handler(content_types=['sticker'])
-def sticker_id(message):
+def sticker_stop(message):
     print(message)
     bot.send_sticker(message.from_user.id, 'CAACAgQAAxkBAAIH1V79skuRxW2HHxSIguJ1xG3zN3T3AAJXBwACzfXABHlZqZRf_0W6GgQ')
     bot.send_message(message.from_user.id, "Я не понимаю ничего из стикеров, напиши что-нибудь другое")
+
+
+@bot.message_handler(content_types=['voice'])
+def voice_stop(message):
+    bot.send_message(message.from_user.id, "Пиши словами, я глухай...")
 
 
 
