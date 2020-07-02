@@ -28,7 +28,7 @@ def get_text_messages(message):
         if message.text == "/whoami":
             user_info = userDataBase.get_user_info(message.from_user.id)
             name = user_info[0]
-            faculty = user_info[1];
+            faculty = user_info[1]
             bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете " + faculty);
         elif message.text == "/edit" or message.text == "Изменить имя или факультет":
             markup = generate_register_markup()
@@ -42,8 +42,9 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, "Выбирай день недели. Если ты закончил - пиши /stop", reply_markup=markup)
             bot.register_next_step_handler(message, set_class_num)
         elif message.text == "/get_all_schedule" or message.text == "Получить полное расписание":
-            bot.send_message(message.from_user.id, "Вот твое текущее расписание:")
-            bot.register_next_step_handler(message, get_all_schedule)
+            markup = generate_main_markup()
+            bot.send_message(message.from_user.id, "Вот твое текущее расписание:", reply_markup=markup)
+            get_all_schedule(message)
         else:
             markup = generate_main_markup()
             bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: '
@@ -82,6 +83,8 @@ def get_faculty(message):
 def get_all_schedule(message):
     user = message.from_user.id
     userDB = userDataBase.db_get_all_schedule(user)
+    for pair in range(len(userDB)):
+        bot.send_message(message.from_user.id, userDB[pair][3])
 
 #       TODO: Add func that returns value from specific week day
 def get_todays_schedule():

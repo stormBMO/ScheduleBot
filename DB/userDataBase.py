@@ -37,8 +37,12 @@ def db_update_name(id, name):
 def db_get_all_schedule(id):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE id = ?", (id,))
-    user_info = cursor.fetchone()
+    cursor.execute("SELECT schedule FROM users WHERE id = ?", (id,))
+    user_schedule_name = cursor.fetchone()[0]
+    conn = sqlite3.connect(us_db_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM " + user_schedule_name + " WHERE flag = -1")
+    user_info = cursor.fetchall()
     conn.close()
     return user_info
 
