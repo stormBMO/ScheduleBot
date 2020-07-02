@@ -30,7 +30,7 @@ def get_text_messages(message):
             name = user_info[0]
             faculty = user_info[1];
             bot.send_message(message.from_user.id, "Ты - " + name + ", учишься на факультете " + faculty);
-        elif message.text == "/edit" or message.text == "Изменить имя и факультет":
+        elif message.text == "/edit" or message.text == "Изменить имя или факультет":
             markup = generate_register_markup()
             bot.send_message(message.from_user.id, "Что ты хочешь изменить.", reply_markup=markup)
             bot.register_next_step_handler(message, edit_info)
@@ -45,7 +45,9 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, "Вот твое текущее расписание:")
             bot.register_next_step_handler(message, get_all_schedule)
         else:
-            bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: /whoami, /edit, /schedule_reg, /get_all_schedule');
+            markup = generate_main_markup()
+            bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: '
+                                                   '/whoami, /edit, /schedule_reg, /get_all_schedule', reply_markup=markup)
 
 
 # ------------------------registration`s functions-------------------------------
@@ -220,7 +222,7 @@ def generate_classes_choose_markup():
 
 def generate_main_markup():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    edit_btn = telebot.types.KeyboardButton("Изменить имя и факультет")
+    edit_btn = telebot.types.KeyboardButton("Изменить имя или факультет")
     schedule_reg_btn = telebot.types.KeyboardButton("Зарегестрировать или изменить расписание")
     get_all_schedule_btn = telebot.types.KeyboardButton("Получить полное расписание")
     markup.row(edit_btn)
@@ -229,6 +231,7 @@ def generate_main_markup():
     return markup
 
 
+
 bot.polling(none_stop=True, interval=0)
-if(datetime.today().strftime('%A') == ""):
-    print()
+# if(datetime.today().strftime('%A') == ""):
+#     print()
