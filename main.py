@@ -14,16 +14,20 @@ bot = telebot.TeleBot(token_bot)
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    print(message.from_user.username + " отправил: " + message.text)
+    print(message.from_user.username + " отправил: ")
+    print(message.text)
     if not userDataBase.db_check_user(message.from_user.id):
+        markup = generate_start_markup()
         if message.text == "/start":
-            bot.send_message(message.from_user.id, "Привет, этот бот поможет тебе с расписанием в университете. Напиши /reg, чтобы зарегистрироваться")
-        elif message.text == "/help":
-            bot.send_message(message.from_user.id, "Напиши /reg, чтобы зарегистрироваться")  # надо бы продумать логику тут (ответа)
-        elif message.text == "/reg":
+            bot.send_message(message.from_user.id, "Привет, этот бот поможет тебе с расписанием в университете. "
+                                                   "Напиши /reg, чтобы зарегистрироваться, или нажми кнопку Регистрации", reply_markup=markup)
+        elif message.text == "/help" or message.text == "Помощь":
+            # надо бы продумать логику тут (ответа)
+            bot.send_message(message.from_user.id, "Напиши /reg, чтобы зарегистрироваться", reply_markup=markup)
+        elif message.text == "/reg" or message.text == "Регистрация":
             register_user(message)
         else:
-            bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
+            bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.", reply_markup=markup)
     else:
         if message.text == "/whoami":
             user_info = userDataBase.get_user_info(message.from_user.id)
@@ -34,7 +38,7 @@ def get_text_messages(message):
             markup = generate_register_markup()
             bot.send_message(message.from_user.id, "Что ты хочешь изменить.", reply_markup=markup)
             bot.register_next_step_handler(message, edit_info)
-        elif message.text == "/schedule_reg" or message.text == "Зарегестрировать или изменить расписание":
+        elif message.text == "/schedule_reg" or message.text == "Зарегестрировать расписание":
             bot.send_message(message.from_user.id, "Отлично, приступим")
             # Добаление в бд таблицы пользователя
             userDataBase.create_schedule(message.from_user.id)
@@ -47,8 +51,8 @@ def get_text_messages(message):
             get_all_schedule(message)
         else:
             markup = generate_main_markup()
-            bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команды: '
-                                                   '/whoami, /edit, /schedule_reg, /get_all_schedule', reply_markup=markup)
+            bot.send_message(message.from_user.id, 'Не знаю что ты сказал, но я пока только понимаю команду '
+                                                   '/whoami, а также ты можешь нажать на кнопки снизу', reply_markup=markup)
 
 
 # ------------------------registration`s functions-------------------------------
@@ -79,7 +83,7 @@ def get_faculty(message):
     bot.send_message(message.from_user.id, 'Теперь предлагаю тебе заполнить расписание твоих занятий. Если надумаешь - пиши /schedule_reg')
 
 
-#       TODO: Add func that returns all values (classes) from users DB
+#       TODO: think about normal output
 def get_all_schedule(message):
     user = message.from_user.id
     userDB = userDataBase.db_get_all_schedule(user)
@@ -178,6 +182,12 @@ def reminder_checkpoint(message):
 
 
 # -----------------------------keyboards----------------------------------------
+def generate_start_markup():
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button1 = telebot.types.KeyboardButton('Регистрация')
+    button2 = telebot.types.KeyboardButton('Помощь')
+    markup.row(button1, button2)
+    return markup
 
 def generate_register_markup():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -185,6 +195,7 @@ def generate_register_markup():
     button2 = telebot.types.KeyboardButton('Факультет')
     markup.row(button1, button2)
     return markup
+
 
 
 def generate_day_choose_markup():
@@ -226,12 +237,18 @@ def generate_classes_choose_markup():
 def generate_main_markup():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     edit_btn = telebot.types.KeyboardButton("Изменить имя или факультет")
-    schedule_reg_btn = telebot.types.KeyboardButton("Зарегестрировать или изменить расписание")
+    schedule_reg_btn = telebot.types.KeyboardButton("Зарегестрировать расписание")
     get_all_schedule_btn = telebot.types.KeyboardButton("Получить полное расписание")
     markup.row(edit_btn)
     markup.row(schedule_reg_btn)
     markup.row(get_all_schedule_btn)
     return markup
+
+@bot.message_handler(content_types=['sticker'])
+def sticker_id(message):
+    print(message)
+    bot.send_sticker(message.from_user.id, 'CAACAgQAAxkBAAIH1V79skuRxW2HHxSIguJ1xG3zN3T3AAJXBwACzfXABHlZqZRf_0W6GgQ')
+    bot.send_message(message.from_user.id, "Я не понимаю ничего из стикеров, напиши что-нибудь другое")
 
 
 
