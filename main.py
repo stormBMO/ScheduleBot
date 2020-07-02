@@ -107,8 +107,8 @@ def get_all_schedule(message):
                 bot.send_message(message.from_user.id, transformations.int_to_weekday(userDB[pair][0]) + ": " + str(userDB[pair][1]) +
                                  " полупара - " + userDB[pair][4])
     else:
-        bot.send_message(message.from_user.id, "Сначала заполни свое расписание", markup_reply=markup)
-    bot.send_message(message.from_user.id, "Можешь изменить или дополнить его, нажав на кнопку ниже", markup_reply=markup)
+        bot.send_message(message.from_user.id, "Сначала заполни свое расписание")
+    bot.send_message(message.from_user.id, "Можешь изменить или дополнить его, нажав на кнопку ниже", reply_markup=markup)
 
 #       TODO: Add func that returns value from specific week day
 def get_todays_schedule():
